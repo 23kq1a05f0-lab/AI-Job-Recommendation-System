@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>AI Job Recommender</title>
+<style>
+body{font-family:Arial;background:#6a11cb;color:white;text-align:center}
+.container{margin:50px auto;width:500px;background:rgba(255,255,255,0.1);padding:20px;border-radius:10px}
+input,textarea{width:90%;padding:10px;margin:10px;border:none;border-radius:6px}
+button{padding:10px 20px;background:#00ffd5;border:none;border-radius:8px;font-size:16px}
+.card{background:white;color:black;padding:10px;margin-top:10px;border-radius:8px}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<h2>AI Job Recommendation System</h2>
+
+<form method="POST">
+<textarea name="skills" placeholder="Enter skills"></textarea>
+<input type="number" name="exp" placeholder="Experience">
+<button type="submit">Recommend Jobs</button>
+</form>
+
+{% if jobs %}
+<h3>Recommended Jobs</h3>
+{% for j in jobs %}
+<div class="card">
+<b>{{j.Job_Title}}</b><br>
+Salary: {{j.Salary}}<br>
+Match Score: {{j.Score}}
+</div>
+{% endfor %}
+{% endif %}
+
+</div>
+</body>
+</html>
+

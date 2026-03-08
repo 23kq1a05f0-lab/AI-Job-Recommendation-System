@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>AI Job Recommendation</title>
+<style>
+body{font-family:Arial;background:#6a11cb;color:white;text-align:center;padding:40px;}
+.box{background:white;color:black;padding:20px;border-radius:10px;width:350px;margin:auto;}
+button{padding:10px;background:#2575fc;color:white;border:none;border-radius:5px;}
+</style>
+</head>
+<body>
+
+<h1>🤖 AI Job Recommendation</h1>
+
+<div class="box">
+<textarea id="skills" placeholder="Enter skills"></textarea><br><br>
+<button onclick="send()">Recommend Job</button>
+<p id="result"></p>
+</div>
+
+<script>
+function send(){
+fetch("http://127.0.0.1:5000/predict",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({skills:document.getElementById("skills").value})
+})
+.then(res=>res.json())
+.then(data=>{
+document.getElementById("result").innerHTML="Recommended Job: "+data.job;
+});
+}
+</script>
+
+</body>
+</html>
