@@ -1,29 +1,31 @@
 import streamlit as st
 import pandas as pd
-st.write("NEW VERSION LOADED ✅")
+import re
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(page_title="AI Job Recommender", page_icon="💼", layout="centered")
 
+
+
 # ---------------- CUSTOM CSS ----------------
 st.markdown("""
 <style>
 .stApp {
-    background: linear-gradient(135deg, #1f4037, #99f2c8);
+    background: linear-gradient(135deg, #141e30, #243b55);
 }
 
 .title {
     text-align: center;
-    font-size: 40px;
+    font-size: 42px;
     font-weight: bold;
     color: white;
 }
 
 .subtitle {
     text-align: center;
-    color: #f0f0f0;
+    color: #d1d1d1;
     margin-bottom: 30px;
 }
 
@@ -36,7 +38,6 @@ textarea, input {
     background-color: white !important;
     color: black !important;
     border-radius: 10px !important;
-    padding: 10px !important;
 }
 
 div.stButton > button {
@@ -44,14 +45,7 @@ div.stButton > button {
     color: white;
     border-radius: 10px;
     height: 45px;
-    font-size: 16px;
     width: 100%;
-}
-
-.section {
-    color: white;
-    font-size: 24px;
-    margin-top: 20px;
 }
 
 .job-card {
@@ -60,7 +54,7 @@ div.stButton > button {
     padding: 20px;
     border-radius: 15px;
     margin-top: 15px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
 .skill {
@@ -71,6 +65,14 @@ div.stButton > button {
     margin: 3px;
     display: inline-block;
 }
+
+.badge {
+    background: gold;
+    color: black;
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-weight: bold;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -79,28 +81,27 @@ jobs = pd.read_csv("jobs_dataset.csv")
 
 # ---------------- HEADER ----------------
 st.markdown('<div class="title">💼 AI Job Recommendation System</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle">Find the best job based on your skills</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitle">Smart job suggestions based on your skills</div>', unsafe_allow_html=True)
 
 # ---------------- INPUT ----------------
-skills = st.text_area("Enter your skills (comma separated)")
+skills = st.text_area("Enter your skills (comma or space separated)")
 exp = st.number_input("Years of experience", min_value=0, max_value=20)
 
 # ---------------- BUTTON ----------------
 if st.button("🔍 Recommend Jobs"):
 
-    # Reset index (fix index error)
     jobs_filtered = jobs[jobs["Min_Exp"] <= exp].copy().reset_index(drop=True)
 
     if jobs_filtered.empty:
         st.warning("No jobs match your experience level")
 
     else:
-        # ---------------- CLEAN INPUT ----------------
-        user_skills = [s.strip().lower() for s in skills.split(",") if s.strip() != ""]
+        # -------- FLEXIBLE INPUT CLEANING --------
+        user_skills = re.split(r"[,\s]+", skills.lower())
+        user_skills = [s.strip() for s in user_skills if s.strip()]
 
         jobs_filtered["Skills"] = jobs_filtered["Skills"].str.lower()
 
-        # ---------------- TF-IDF ----------------
         text_data = jobs_filtered["Skills"].tolist()
         text_data.append(" ".join(user_skills))
 
@@ -109,53 +110,70 @@ if st.button("🔍 Recommend Jobs"):
 
         similarity = cosine_similarity(matrix[-1], matrix[:-1])[0]
 
-        # ---------------- COMBINED SCORE ----------------
         final_scores = []
+        missing_skills_list = []
 
         for idx, row in jobs_filtered.iterrows():
 
-            job_skills = [s.strip() for s in row["Skills"].split(",")]
+            # -------- FLEXIBLE JOB SKILLS --------
+            job_skills = re.split(r"[,\s]+", row["Skills"])
+            job_skills = [s.strip() for s in job_skills if s.strip()]
 
-            # manual matching
-            match_count = len(set(user_skills) & set(job_skills))
-            manual_score = match_count / len(job_skills)
+            match = set(user_skills) & set(job_skills)
+            missing = set(job_skills) - set(user_skills)
 
-            # combine TF-IDF + manual
+            manual_score = len(match) / len(job_skills)
             final_score = (0.7 * similarity[idx]) + (0.3 * manual_score)
 
             final_scores.append(final_score)
+            missing_skills_list.append(list(missing))
 
         jobs_filtered["Score"] = final_scores
+        jobs_filtered["Missing"] = missing_skills_list
 
-        # ---------------- SORT ----------------
         top = jobs_filtered.sort_values(by="Score", ascending=False).head(3)
 
-        # ---------------- OUTPUT ----------------
-        st.markdown('<div class="section">🎯 Recommended Jobs</div>', unsafe_allow_html=True)
+        st.subheader("🎯 Recommended Jobs")
 
-        for _, row in top.iterrows():
+        for i, row in top.iterrows():
 
             score = round(row["Score"] * 100, 2)
 
+            # Color logic
+            if score > 70:
+                color = "green"
+            elif score > 40:
+                color = "orange"
+            else:
+                color = "red"
+
+            badge = ""
+            if i == top.index[0]:
+                badge = '<span class="badge">🏆 Top Match</span>'
+
             st.markdown(f"""
             <div class="job-card">
-                <h3>💼 {row['Job_Title']}</h3>
+                <h3>💼 {row['Job_Title']} {badge}</h3>
                 <p><b>💰 Salary:</b> {row['Salary']}</p>
-                <p><b>📊 Match Score:</b> {score}%</p>
+                <p><b style="color:{color};">📊 Match Score: {score}%</b></p>
             </div>
             """, unsafe_allow_html=True)
 
             st.progress(score / 100)
 
-            # Skills display
+            # Skills
             st.write("🧠 Required Skills:")
+            skills_html = ""
+            for s in row["Skills"].split(","):
+                skills_html += f'<span class="skill">{s.strip().upper()}</span>'
+            st.markdown(skills_html, unsafe_allow_html=True)
 
-            skills_list = row["Skills"].split(",")
-
-            skill_html = ""
-            for s in skills_list:
-                skill_html += f'<span class="skill">{s.strip().upper()}</span>'
-
-            st.markdown(skill_html, unsafe_allow_html=True)
+            # Missing Skills
+            if row["Missing"]:
+                st.write("💡 Improve by learning:")
+                miss_html = ""
+                for m in row["Missing"]:
+                    miss_html += f'<span class="skill" style="background:red;">{m.upper()}</span>'
+                st.markdown(miss_html, unsafe_allow_html=True)
 
             st.divider()
