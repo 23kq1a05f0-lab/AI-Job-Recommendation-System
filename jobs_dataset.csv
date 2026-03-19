@@ -1,7 +1,21 @@
-
 Job_Title,Skills,Min_Exp,Salary
-Machine Learning Engineer,"Python, ML, AI",1,8 LPA
-Data Scientist,"Python, Statistics, ML",2,10 LPA
-Frontend Developer,"HTML, CSS, JS",0,4 LPA
-Backend Developer,"Python, Django, SQL",1,6 LPA
-Data Analyst,"SQL, Excel, Python",0,5 LPA
+Machine Learning Engineer,"Python, ML, AI, Deep Learning, TensorFlow",1,8 LPA
+Data Scientist,"Python, Statistics, ML, Pandas, NumPy",2,10 LPA
+Frontend Developer,"HTML, CSS, JavaScript, React",0,4 LPA
+Backend Developer,"Python, Django, SQL, APIs",1,6 LPA
+Data Analyst,"SQL, Excel, Python, Power BI",0,5 LPA
+Full Stack Developer,"HTML, CSS, JS, Python, Django, React",1,7 LPA
+DevOps Engineer,"AWS, Docker, Kubernetes, Linux",2,9 LPA
+Cloud Engineer,"AWS, Azure, Cloud Computing, Networking",1,8 LPA
+Cyber Security Analyst,"Network Security, Ethical Hacking, Python",1,7 LPA
+AI Engineer,"Python, AI, NLP, Deep Learning",2,12 LPA
+Software Engineer,"Java, OOP, Data Structures, Algorithms",0,6 LPA
+Mobile App Developer,"Flutter, Android, Kotlin, Firebase",1,6 LPA
+Database Administrator,"SQL, Oracle, Database Design",2,8 LPA
+Business Analyst,"Excel, SQL, Data Analysis, Communication",1,6 LPA
+UI/UX Designer,"Figma, Adobe XD, Design Principles",0,5 LPA
+Game Developer,"Unity, C#, Game Design",1,7 LPA
+Blockchain Developer,"Blockchain, Solidity, Ethereum",2,12 LPA
+Network Engineer,"Networking, Cisco, Routing, Switching",1,6 LPA
+Embedded Systems Engineer,"C, Microcontrollers, IoT",1,7 LPA
+QA Engineer,"Testing, Selenium, Automation",0,5 LPA
